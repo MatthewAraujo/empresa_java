@@ -1,12 +1,12 @@
 package com.empresa.projetoapi.service;
 
-import com.empresa.projetoapi.model.Empresa;
-import com.empresa.projetoapi.model.Funcionario; 
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.empresa.projetoapi.model.Empresa;
 
 @Service
 public class EmpresaService {
@@ -66,31 +66,6 @@ public class EmpresaService {
                     empresaList.remove(empresa);
                     return "Empresa deletada: " + empresa.getNome();
                 });
-    }
-
-    public Optional<Funcionario> addFuncionarioToEmpresa(Integer empresaId, Funcionario funcionario) {
-        return getEmpresaById(empresaId).map(empresa -> {
-            empresa.getFuncionarios().add(funcionario);
-            return funcionario;
-        });
-    }
-
-    public Optional<String> removeFuncionarioFromEmpresa(Integer empresaId, Integer funcionarioId) {
-        Optional<Empresa> empresa = getEmpresaById(empresaId);
-        if (empresa.isPresent()) {
-            List<Funcionario> funcionarios = empresa.get().getFuncionarios();
-            Optional<Funcionario> funcionarioToRemove = funcionarios.stream()
-                    .filter(funcionario -> funcionario.getId() == funcionarioId)
-                    .findFirst();
-
-            if (funcionarioToRemove.isPresent()) {
-                funcionarios.remove(funcionarioToRemove.get());
-                return Optional.of("Funcionário removido: " + funcionarioToRemove.get().getNome());
-            } else {
-                return Optional.empty(); 
-            }
-        }
-        return Optional.empty(); 
     }
 }
 

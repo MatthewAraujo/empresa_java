@@ -1,4 +1,4 @@
-package com.funcionario.projetoapi.model;
+package com.empresa.projetoapi.model;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -11,14 +11,16 @@ public class Funcionario {
     private int idade;
     private String email;
     private String cargo;
+    private int empresaId; 
 
-    public Funcionario(int id, String nome, String sobrenome, int idade, String email, String cargo) {
+    public Funcionario(int id, String nome, String sobrenome, int idade, String email, String cargo, int empresaId) {
         this.id = id;
         this.nome = nome;
         this.sobrenome = sobrenome;
         this.idade = idade;
         this.email = email;
         this.cargo = cargo;
+        this.empresaId = empresaId; 
     }
 
     public int getId() {
@@ -67,6 +69,14 @@ public class Funcionario {
 
     public void setCargo(String cargo) {
         this.cargo = cargo;
+    }
+
+    public int getEmpresaId() {
+        return empresaId;
+    }
+
+    public void setEmpresaId(int empresaId) {
+        this.empresaId = empresaId;
     }
 }
 

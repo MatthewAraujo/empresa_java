@@ -1,29 +1,41 @@
-package com.funcionario.projetoapi.service;
-
-import com.funcionario.projetoapi.model.Funcionario;
-import org.springframework.stereotype.Service;
+package com.empresa.projetoapi.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.empresa.projetoapi.model.Empresa;
+import com.empresa.projetoapi.model.Funcionario; 
 
 @Service
 public class FuncionarioService {
 
     private final List<Funcionario> funcionarioList;
+    private final EmpresaService empresaService; 
 
-    public FuncionarioService() {
-        funcionarioList = new ArrayList<>();
+    public FuncionarioService(EmpresaService empresaService) {
+    this.empresaService = empresaService;
+    funcionarioList = new ArrayList<>();
 
-        Funcionario funcionario1 = new Funcionario(1, "Carlos", 35, "carlos@gmail.com", "TI");
-        Funcionario funcionario2 = new Funcionario(2, "Ana", 29, "ana@gmail.com", "RH");
-        Funcionario funcionario3 = new Funcionario(3, "Pedro", 40, "pedro@gmail.com", "Financeiro");
-        Funcionario funcionario4 = new Funcionario(4, "Clara", 31, "clara@gmail.com", "Marketing");
-        Funcionario funcionario5 = new Funcionario(5, "João", 25, "joao@gmail.com", "Desenvolvimento");
+    // Criando funcionários e associando às empresas
+    Funcionario funcionario1 = new Funcionario(1, "Carlos", "Silva", 35, "carlos@gmail.com", "TI", 1);
+    Funcionario funcionario2 = new Funcionario(2, "Ana", "Souza", 29, "ana@gmail.com", "RH", 2);
+    Funcionario funcionario3 = new Funcionario(3, "Pedro", "Lima", 40, "pedro@gmail.com", "Financeiro", 3);
+    Funcionario funcionario4 = new Funcionario(4, "Clara", "Costa", 31, "clara@gmail.com", "Marketing", 1);
+    Funcionario funcionario5 = new Funcionario(5, "João", "Pereira", 25, "joao@gmail.com", "Desenvolvimento", 2);
 
-        funcionarioList.addAll(Arrays.asList(funcionario1, funcionario2, funcionario3, funcionario4, funcionario5));
-    }
+    funcionarioList.addAll(List.of(funcionario1, funcionario2, funcionario3, funcionario4, funcionario5));
+
+    // Associando funcionários às suas empresas
+    empresaService.getEmpresa(1).ifPresent(empresa -> empresa.addFuncionario(funcionario1));
+    empresaService.getEmpresa(1).ifPresent(empresa -> empresa.addFuncionario(funcionario4));
+    empresaService.getEmpresa(2).ifPresent(empresa -> empresa.addFuncionario(funcionario2));
+    empresaService.getEmpresa(2).ifPresent(empresa -> empresa.addFuncionario(funcionario5));
+    empresaService.getEmpresa(3).ifPresent(empresa -> empresa.addFuncionario(funcionario3));
+}
+
 
     public Optional<Funcionario> getFuncionario(Integer id) {
         return funcionarioList.stream()
@@ -36,18 +48,31 @@ public class FuncionarioService {
     }
 
     public Funcionario createFuncionario(Funcionario funcionario) {
-        if (funcionarioList.stream().anyMatch(existingFuncionario -> existingFuncionario.getId() == funcionario.getId())) {
-            throw new IllegalArgumentException("Funcionario with ID " + funcionario.getId() + " already exists");
+        if (empresaService.getEmpresa(funcionario.getEmpresaId()).isEmpty()) {
+            throw new IllegalArgumentException("Empresa com ID " + funcionario.getEmpresaId() + " não existe.");
         }
+
         funcionarioList.add(funcionario);
+        
+        Empresa empresa = empresaService.getEmpresa(funcionario.getEmpresaId()).orElseThrow(() -> 
+            new IllegalArgumentException("Empresa não encontrada para adicionar o funcionário."));
+        empresa.addFuncionario(funcionario);
+
         return funcionario;
     }
+
 
     public Optional<Funcionario> getFuncionarioById(Integer id) {
         return getFuncionario(id);
     }
 
     public Optional<Funcionario> updateFuncionarioById(Funcionario funcionario) {
+        // Verifica se a empresa associada existe
+        Optional<Empresa> empresa = empresaService.getEmpresa(funcionario.getEmpresaId());
+        if (empresa.isEmpty()) {
+            throw new IllegalArgumentException("Empresa com ID " + funcionario.getEmpresaId() + " não encontrada");
+        }
+
         return funcionarioList.stream()
                 .filter(existingFuncionario -> existingFuncionario.getId() == funcionario.getId())
                 .findFirst()
@@ -64,7 +89,7 @@ public class FuncionarioService {
                 .findFirst()
                 .map(funcionario -> {
                     funcionarioList.remove(funcionario);
-                    return "Funcionario deleted: " + funcionario.getName();
+                    return "Funcionario deletado: " + funcionario.getNome();
                 });
     }
 }

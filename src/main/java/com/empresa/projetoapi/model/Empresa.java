@@ -1,7 +1,8 @@
 package com.empresa.projetoapi.model;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Empresa {
@@ -59,5 +60,10 @@ public class Empresa {
     public void setFuncionarios(List<Funcionario> funcionarios) {
         this.funcionarios = funcionarios;
     }
+
+    public void addFuncionario(Funcionario funcionario) {
+        this.funcionarios.add(funcionario); // Método para adicionar funcionário
+    }
+
 }
 
