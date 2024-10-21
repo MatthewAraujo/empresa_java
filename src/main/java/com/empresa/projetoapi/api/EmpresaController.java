@@ -6,27 +6,23 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.empresa.projetoapi.model.Empresa;
 import com.empresa.projetoapi.service.EmpresaService;
+import com.empresa.projetoapi.service.FuncionarioService;
 
 @RestController
 @RequestMapping("/api")
 public class EmpresaController {
 
     private final EmpresaService empresaService;
+    private final FuncionarioService funcionarioService;
 
     @Autowired
-    public EmpresaController(EmpresaService empresaService) {
+    public EmpresaController(EmpresaService empresaService, FuncionarioService funcionarioService) {
         this.empresaService = empresaService;
+        this.funcionarioService = funcionarioService;
     }
 
     @GetMapping("/empresas")
@@ -64,6 +60,11 @@ public class EmpresaController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedEmpresa);
     }
 
+    @DeleteMapping("/empresa/{id}")
+    public ResponseEntity<?> deleteEmpresaById(@PathVariable("id") Integer id) {
+        Optional<String> deletedEmpresa = empresaService.deleteEmpresaById(id, funcionarioService);
+        return deletedEmpresa.map(s -> ResponseEntity.status(HttpStatus.OK).body("Empresa deleted: " + s)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Empresa not found for deletion"));
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {

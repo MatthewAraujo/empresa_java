@@ -67,7 +67,6 @@ public class FuncionarioService {
     }
 
     public Optional<Funcionario> updateFuncionarioById(Funcionario funcionario) {
-        // Verifica se a empresa associada existe
         Optional<Empresa> empresa = empresaService.getEmpresa(funcionario.getEmpresaId());
         if (empresa.isEmpty()) {
             throw new IllegalArgumentException("Empresa com ID " + funcionario.getEmpresaId() + " não encontrada");
@@ -88,9 +87,22 @@ public class FuncionarioService {
                 .filter(funcionario -> funcionario.getId() == id)
                 .findFirst()
                 .map(funcionario -> {
+                    // Remover o funcionário da lista de funcionários de sua empresa associada
+                    empresaService.getEmpresa(funcionario.getEmpresaId()).ifPresent(empresa -> {
+                        empresa.getFuncionarios().removeIf(f -> f.getId() == id);
+                    });
+
+                    // Remover o funcionário da lista geral de funcionários
                     funcionarioList.remove(funcionario);
-                    return "Funcionario deletado: " + funcionario.getNome();
+
+                    return "Funcionário deletado e removido da empresa: " + funcionario.getNome();
                 });
+    }
+
+
+
+    public void removerFuncionariosPorEmpresa(Integer empresaId) {
+        funcionarioList.removeIf(funcionario -> funcionario.getEmpresaId() == empresaId);
     }
 }
 

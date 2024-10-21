@@ -58,14 +58,17 @@ public class EmpresaService {
                 });
     }
 
-    public Optional<String> deleteEmpresaById(Integer id) {
+    public Optional<String> deleteEmpresaById(Integer id, FuncionarioService funcionarioService) {
         return empresaList.stream()
                 .filter(empresa -> empresa.getId() == id)
                 .findFirst()
                 .map(empresa -> {
+                    funcionarioService.removerFuncionariosPorEmpresa(id);
+
+                    // Remover a empresa da lista
                     empresaList.remove(empresa);
-                    return "Empresa deletada: " + empresa.getNome();
+
+                    return "Empresa deletada e funcionários associados removidos: " + empresa.getNome();
                 });
     }
 }
-
