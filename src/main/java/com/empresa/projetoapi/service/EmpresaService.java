@@ -1,13 +1,14 @@
 package com.empresa.projetoapi.service;
 
-import com.empresa.projetoapi.repository.EmpresaRepository;
-import com.empresa.projetoapi.model.Empresa;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.empresa.projetoapi.model.Empresa;
+import com.empresa.projetoapi.repository.EmpresaRepository;
 
 @Service
 public class EmpresaService {
@@ -48,4 +49,3 @@ public class EmpresaService {
         return Optional.empty();
     }
 }
-
