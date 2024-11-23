@@ -10,7 +10,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class Database {
     private static final Dotenv dotenv = Dotenv.configure().directory("./").load();
 
-    private static final String URL = dotenv.get("DATABASE_URL") + "?ssl=true";
+    private static final String URL = dotenv.get("DATABASE_URL") ;
     private static final String USER = dotenv.get("DATABASE_USER");
     private static final String PASSWORD = dotenv.get("DATABASE_PASSWORD");
 
