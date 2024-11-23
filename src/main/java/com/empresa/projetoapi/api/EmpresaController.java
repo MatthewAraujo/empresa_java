@@ -19,16 +19,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.empresa.projetoapi.model.Empresa;
 import com.empresa.projetoapi.service.EmpresaService;
+import com.empresa.projetoapi.service.FuncionarioService;
 
 @RestController
 @RequestMapping("/api")
 public class EmpresaController {
 
     private final EmpresaService empresaService;
+    private final FuncionarioService funcionarioService;
 
     @Autowired
-    public EmpresaController(EmpresaService empresaService) {
+    public EmpresaController(EmpresaService empresaService, FuncionarioService funcionarioService) {
         this.empresaService = empresaService;
+        this.funcionarioService = funcionarioService;
     }
 
     @GetMapping("/empresas")

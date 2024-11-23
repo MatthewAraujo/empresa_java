@@ -80,5 +80,9 @@ public class FuncionarioService {
             throw new RuntimeException("Erro ao deletar funcionário com ID " + id + ": " + e.getMessage(), e);
         }
     }
+
+
+
+    
 }
 
