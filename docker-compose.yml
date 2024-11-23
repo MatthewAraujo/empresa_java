@@ -1,5 +1,7 @@
+version: '3.8'
 
 services:
+  # Serviço PostgreSQL
   pg:
     image: bitnami/postgresql
     ports:
@@ -8,3 +10,33 @@ services:
       - POSTGRESQL_USERNAME=docker
       - POSTGRESQL_PASSWORD=docker
       - POSTGRESQL_DATABASE=empresa_java
+    volumes:
+      - pg_data:/bitnami/postgresql
+    networks:
+      - app-network
+
+  # Serviço Java
+  java-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pg:5432/empresa_java
+      - SPRING_DATASOURCE_USERNAME=docker
+      - SPRING_DATASOURCE_PASSWORD=docker
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - pg
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pg_data:
+    driver: local

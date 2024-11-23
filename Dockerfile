@@ -11,6 +11,7 @@ COPY pom.xml ./
 
 RUN chmod +x mvnw
 
+# Go offline and download dependencies
 RUN mvn dependency:go-offline -B
 
 # Copy the source code
@@ -19,6 +20,9 @@ COPY src src
 # Build the application
 RUN mvn clean package -DskipTests
 
+# Check if the JAR file was generated
+RUN ls /app/target
+
 # Stage 2: Run the application
 FROM eclipse-temurin:21-jre
 
@@ -26,9 +30,10 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copy the built jar from the build stage
-COPY --from=build /app/target/projetorest-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/projetoapi-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose port 8080
+
+# Expose port 8090
 EXPOSE 8090
 
 # Define the entrypoint
