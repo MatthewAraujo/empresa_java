@@ -26,12 +26,10 @@ import com.empresa.projetoapi.service.FuncionarioService;
 public class EmpresaController {
 
     private final EmpresaService empresaService;
-    private final FuncionarioService funcionarioService;
 
     @Autowired
     public EmpresaController(EmpresaService empresaService, FuncionarioService funcionarioService) {
         this.empresaService = empresaService;
-        this.funcionarioService = funcionarioService;
     }
 
     @GetMapping("/empresas")

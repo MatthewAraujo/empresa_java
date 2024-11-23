@@ -16,7 +16,6 @@ public class Database {
             return connection;
         } catch (SQLException e) {
             System.out.println("Erro ao conectar: " + e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
