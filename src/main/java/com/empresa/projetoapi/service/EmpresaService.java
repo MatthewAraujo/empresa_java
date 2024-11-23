@@ -1,71 +1,51 @@
 package com.empresa.projetoapi.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import com.empresa.projetoapi.repository.EmpresaRepository;
+import com.empresa.projetoapi.model.Empresa;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.empresa.projetoapi.model.Empresa;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmpresaService {
 
-    private final List<Empresa> empresaList;
+    private final EmpresaRepository empresaRepository;
 
-    public EmpresaService() {
-        empresaList = new ArrayList<>();
-
-        Empresa empresa1 = new Empresa(1, "Empresa A", "123456789", "Rua 1, Bairro 1", new ArrayList<>());
-        Empresa empresa2 = new Empresa(2, "Empresa B", "987654321", "Rua 2, Bairro 2", new ArrayList<>());
-        Empresa empresa3 = new Empresa(3, "Empresa C", "555555555", "Rua 3, Bairro 3", new ArrayList<>());
-        Empresa empresa4 = new Empresa(4, "Empresa D", "444444444", "Rua 4, Bairro 4", new ArrayList<>());
-        Empresa empresa5 = new Empresa(5, "Empresa E", "333333333", "Rua 5, Bairro 5", new ArrayList<>());
-
-        empresaList.addAll(List.of(empresa1, empresa2, empresa3, empresa4, empresa5));
+    @Autowired
+    public EmpresaService(EmpresaRepository empresaRepository) {
+        this.empresaRepository = empresaRepository;
     }
 
-    public Optional<Empresa> getEmpresa(Integer id) {
-        return empresaList.stream()
-                .filter(empresa -> empresa.getId() == id)
-                .findFirst();
+    public List<Empresa> getEmpresas() throws SQLException {
+        return empresaRepository.findAll();
     }
 
-    public List<Empresa> getEmpresas() {
-        return empresaList;
+    public Optional<Empresa> getEmpresaById(Integer id) throws SQLException {
+        return empresaRepository.findById(id);
     }
 
-    public Empresa createEmpresa(Empresa empresa) {
-        if (empresaList.stream().anyMatch(existingEmpresa -> existingEmpresa.getId() == empresa.getId())) {
-            throw new IllegalArgumentException("Empresa com ID " + empresa.getId() + " já existe.");
+    public void createEmpresa(Empresa empresa) throws SQLException {
+        empresaRepository.save(empresa);
+    }
+
+    public Optional<Empresa> updateEmpresaById(Empresa empresa) throws SQLException {
+        Optional<Empresa> existing = empresaRepository.findById(empresa.getId());
+        if (existing.isPresent()) {
+            empresaRepository.update(empresa);
         }
-        empresaList.add(empresa);
-        return empresa;
+        return existing;
     }
 
-    public Optional<Empresa> getEmpresaById(Integer id) {
-        return getEmpresa(id);
-    }
-
-    public Optional<Empresa> updateEmpresaById(Empresa empresa) {
-        return empresaList.stream()
-                .filter(existingEmpresa -> existingEmpresa.getId() == empresa.getId())
-                .findFirst()
-                .map(existingEmpresa -> {
-                    int index = empresaList.indexOf(existingEmpresa);
-                    empresaList.set(index, empresa);
-                    return empresa;
-                });
-    }
-
-    public Optional<String> deleteEmpresaById(Integer id) {
-        return empresaList.stream()
-                .filter(empresa -> empresa.getId() == id)
-                .findFirst()
-                .map(empresa -> {
-                    empresaList.remove(empresa);
-                    return "Empresa deletada: " + empresa.getNome();
-                });
+    public Optional<String> deleteEmpresaById(Integer id) throws SQLException {
+        Optional<Empresa> empresa = empresaRepository.findById(id);
+        if (empresa.isPresent()) {
+            empresaRepository.deleteById(id);
+            return Optional.of("Deleted");
+        }
+        return Optional.empty();
     }
 }
 

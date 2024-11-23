@@ -1,11 +1,13 @@
 package com.empresa.projetoapi.api;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,8 +33,26 @@ public class EmpresaController {
 
     @GetMapping("/empresas")
     public ResponseEntity<List<Empresa>> getEmpresas() {
-        List<Empresa> empresas = empresaService.getEmpresas();
-        return ResponseEntity.status(HttpStatus.OK).body(empresas);
+        try {
+            System.out.println("PAssei aqui");
+            List<Empresa> empresas = empresaService.getEmpresas();
+            return ResponseEntity.status(HttpStatus.OK).body(empresas);
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/empresa/{id}")
+    public ResponseEntity<?> getEmpresaById(@PathVariable("id") Integer id) {
+        try {
+            Optional<Empresa> empresa = empresaService.getEmpresaById(id);
+            if (empresa.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Empresa not found");
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(empresa);
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching Empresa");
+        }
     }
 
     @PostMapping("/empresa")
@@ -40,35 +60,42 @@ public class EmpresaController {
         try {
             empresaService.createEmpresa(empresa);
             return ResponseEntity.status(HttpStatus.CREATED).body("Empresa created successfully");
-        } catch (Exception e) {
+        } catch (SQLException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating Empresa");
         }
     }
 
-    @GetMapping("/empresa/{id}")
-    public ResponseEntity<?> getEmpresaById(@PathVariable("id") Integer id) {
-        Optional<Empresa> empresa = empresaService.getEmpresaById(id);
-        if (empresa.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Empresa not found");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(empresa);
-    }
-
     @PutMapping("/empresa/{id}")
     public ResponseEntity<?> updateEmpresaById(@PathVariable("id") Integer id, @RequestBody Empresa empresa) {
-        empresa.setId(id);
-        Optional<Empresa> updatedEmpresa = empresaService.updateEmpresaById(empresa);
-        if (updatedEmpresa.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Empresa not found for update");
+        try {
+            empresa.setId(id); // Garantir que o ID no corpo e na URL sejam sincronizados
+            Optional<Empresa> updatedEmpresa = empresaService.updateEmpresaById(empresa);
+            if (updatedEmpresa.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Empresa not found for update");
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(updatedEmpresa);
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating Empresa");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(updatedEmpresa);
     }
 
+    @DeleteMapping("/empresa/{id}")
+    public ResponseEntity<String> deleteEmpresaById(@PathVariable("id") Integer id) {
+        try {
+            Optional<String> result = empresaService.deleteEmpresaById(id);
+            if (result.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Empresa not found for deletion");
+            }
+            return ResponseEntity.status(HttpStatus.OK).body("Empresa deleted successfully");
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting Empresa");
+        }
+    }
 
+    // Tratamento global para exceções genéricas
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
     }
-
 }
 

@@ -1,96 +1,84 @@
 package com.empresa.projetoapi.service;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.empresa.projetoapi.model.Empresa;
-import com.empresa.projetoapi.model.Funcionario; 
+import com.empresa.projetoapi.model.Funcionario;
+import com.empresa.projetoapi.repository.FuncionarioRepository;
 
 @Service
 public class FuncionarioService {
 
-    private final List<Funcionario> funcionarioList;
-    private final EmpresaService empresaService; 
+    private final FuncionarioRepository funcionarioRepository;
+    private final EmpresaService empresaService;
 
-    public FuncionarioService(EmpresaService empresaService) {
-    this.empresaService = empresaService;
-    funcionarioList = new ArrayList<>();
-
-    // Criando funcionários e associando às empresas
-    Funcionario funcionario1 = new Funcionario(1, "Carlos", "Silva", 35, "carlos@gmail.com", "TI", 1);
-    Funcionario funcionario2 = new Funcionario(2, "Ana", "Souza", 29, "ana@gmail.com", "RH", 2);
-    Funcionario funcionario3 = new Funcionario(3, "Pedro", "Lima", 40, "pedro@gmail.com", "Financeiro", 3);
-    Funcionario funcionario4 = new Funcionario(4, "Clara", "Costa", 31, "clara@gmail.com", "Marketing", 1);
-    Funcionario funcionario5 = new Funcionario(5, "João", "Pereira", 25, "joao@gmail.com", "Desenvolvimento", 2);
-
-    funcionarioList.addAll(List.of(funcionario1, funcionario2, funcionario3, funcionario4, funcionario5));
-
-    // Associando funcionários às suas empresas
-    empresaService.getEmpresa(1).ifPresent(empresa -> empresa.addFuncionario(funcionario1));
-    empresaService.getEmpresa(1).ifPresent(empresa -> empresa.addFuncionario(funcionario4));
-    empresaService.getEmpresa(2).ifPresent(empresa -> empresa.addFuncionario(funcionario2));
-    empresaService.getEmpresa(2).ifPresent(empresa -> empresa.addFuncionario(funcionario5));
-    empresaService.getEmpresa(3).ifPresent(empresa -> empresa.addFuncionario(funcionario3));
-}
-
+    public FuncionarioService(FuncionarioRepository funcionarioRepository, EmpresaService empresaService) {
+        this.funcionarioRepository = funcionarioRepository;
+        this.empresaService = empresaService;
+    }
 
     public Optional<Funcionario> getFuncionario(Integer id) {
-        return funcionarioList.stream()
-                .filter(funcionario -> funcionario.getId() == id)
-                .findFirst();
+        try {
+            return funcionarioRepository.findById(id);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar funcionário com ID " + id + ": " + e.getMessage(), e);
+        }
     }
 
     public List<Funcionario> getFuncionarios() {
-        return funcionarioList;
+        try {
+            return funcionarioRepository.findAll();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar todos os funcionários: " + e.getMessage(), e);
+        }
     }
 
     public Funcionario createFuncionario(Funcionario funcionario) {
-        if (empresaService.getEmpresa(funcionario.getEmpresaId()).isEmpty()) {
-            throw new IllegalArgumentException("Empresa com ID " + funcionario.getEmpresaId() + " não existe.");
+        try {
+            if (empresaService.getEmpresaById(funcionario.getEmpresaId()).isEmpty()) {
+                throw new IllegalArgumentException("Empresa com ID " + funcionario.getEmpresaId() + " não existe.");
+            }
+
+            funcionarioRepository.save(funcionario);
+
+            Empresa empresa = empresaService.getEmpresaById(funcionario.getEmpresaId())
+                    .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada para adicionar o funcionário."));
+            empresa.addFuncionario(funcionario);
+
+            return funcionario;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao criar funcionário: " + e.getMessage(), e);
         }
-
-        funcionarioList.add(funcionario);
-        
-        Empresa empresa = empresaService.getEmpresa(funcionario.getEmpresaId()).orElseThrow(() -> 
-            new IllegalArgumentException("Empresa não encontrada para adicionar o funcionário."));
-        empresa.addFuncionario(funcionario);
-
-        return funcionario;
     }
-
 
     public Optional<Funcionario> getFuncionarioById(Integer id) {
         return getFuncionario(id);
     }
 
     public Optional<Funcionario> updateFuncionarioById(Funcionario funcionario) {
-        // Verifica se a empresa associada existe
-        Optional<Empresa> empresa = empresaService.getEmpresa(funcionario.getEmpresaId());
-        if (empresa.isEmpty()) {
-            throw new IllegalArgumentException("Empresa com ID " + funcionario.getEmpresaId() + " não encontrada");
-        }
+        try {
+            if (empresaService.getEmpresaById(funcionario.getEmpresaId()).isEmpty()) {
+                throw new IllegalArgumentException("Empresa com ID " + funcionario.getEmpresaId() + " não encontrada");
+            }
 
-        return funcionarioList.stream()
-                .filter(existingFuncionario -> existingFuncionario.getId() == funcionario.getId())
-                .findFirst()
-                .map(existingFuncionario -> {
-                    int index = funcionarioList.indexOf(existingFuncionario);
-                    funcionarioList.set(index, funcionario);
-                    return funcionario;
-                });
+            funcionarioRepository.update(funcionario);
+            return Optional.of(funcionario);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar funcionário com ID " + funcionario.getId() + ": " + e.getMessage(), e);
+        }
     }
 
     public Optional<String> deleteFuncionarioById(Integer id) {
-        return funcionarioList.stream()
-                .filter(funcionario -> funcionario.getId() == id)
-                .findFirst()
-                .map(funcionario -> {
-                    funcionarioList.remove(funcionario);
-                    return "Funcionario deletado: " + funcionario.getNome();
-                });
+        try {
+            funcionarioRepository.deleteById(id);
+            return Optional.of("Funcionario com ID " + id + " deletado com sucesso.");
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao deletar funcionário com ID " + id + ": " + e.getMessage(), e);
+        }
     }
 }
 
