@@ -38,10 +38,6 @@ public ResponseEntity<List<Empresa>> getEmpresas() {
         System.out.println("Passei aqui");
         List<Empresa> empresas = empresaService.getEmpresas();
         return ResponseEntity.status(HttpStatus.OK).body(empresas);
-    } catch (SQLException e) {
-        // Captura especificamente SQLException
-        System.err.println("Erro de SQL: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     } catch (NullPointerException e) {
         // Captura especificamente NullPointerException
         System.err.println("Erro de Null Pointer: " + e.getMessage());

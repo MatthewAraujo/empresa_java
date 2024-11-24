@@ -1,5 +1,7 @@
 package com.empresa.projetoapi.service;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +22,19 @@ public class EmpresaService {
         this.empresaRepository = empresaRepository;
     }
 
-    public List<Empresa> getEmpresas() throws SQLException {
-        return empresaRepository.findAll();
+    public List<Empresa> getEmpresas() {
+        try {
+            return empresaRepository.findAll();
+        } catch (Exception e) {
+            System.err.println("Erro inesperado ao buscar empresas: " + e.getMessage());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            System.err.println("Stack trace completo: " + sw.toString());
+            throw new RuntimeException("Erro ao buscar empresas", e); // Lança uma exceção de runtime com mais contexto
+        }
     }
+
 
     public Optional<Empresa> getEmpresaById(Integer id) throws SQLException {
         return empresaRepository.findById(id);
