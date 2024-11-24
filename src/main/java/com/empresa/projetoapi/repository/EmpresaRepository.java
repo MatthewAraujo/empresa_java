@@ -24,6 +24,7 @@ public class EmpresaRepository {
         List<Empresa> empresas = new ArrayList<>();
         String query = "SELECT * FROM empresas";
         
+        
         try (Connection connection = Database.getConnection();
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(query)) {

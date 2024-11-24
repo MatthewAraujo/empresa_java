@@ -34,7 +34,7 @@ COPY --from=build /app/target/projetoapi-0.0.1-SNAPSHOT.jar app.jar
 
 
 # Expose port 8090
-EXPOSE 8090
+EXPOSE 8081
 
 # Define the entrypoint
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
