@@ -9,9 +9,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class Database {
     private static final Dotenv dotenv = Dotenv.configure().directory("./").load();
 
-    private static final String URL = dotenv.get("DATABASE_URL") ;
-    private static final String USER = dotenv.get("DATABASE_USER");
-    private static final String PASSWORD = dotenv.get("DATABASE_PASSWORD");
+    private static final String URL = "jdbc:postgresql://junction.proxy.rlwy.net:46588/railway";
+    private static final String USER = "postgress"; 
+    private static final String PASSWORD = "WcqUfNlqKdgPgIjzkmNjVMcAHiuYRnaY";
 
 
 
