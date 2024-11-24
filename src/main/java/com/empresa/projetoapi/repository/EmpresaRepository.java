@@ -19,6 +19,7 @@ import com.empresa.projetoapi.model.Funcionario;
 public class EmpresaRepository {
 
     public List<Empresa> findAll() throws SQLException {
+        System.out.println("PAssei aqui tambem");
 
         List<Empresa> empresas = new ArrayList<>();
         String query = "SELECT * FROM empresas";
