@@ -33,22 +33,23 @@ public class EmpresaController {
     }
 
     @GetMapping("/empresas")
-public ResponseEntity<List<Empresa>> getEmpresas() {
-    try {
-        System.out.println("Passei aqui");
-        List<Empresa> empresas = empresaService.getEmpresas();
-        return ResponseEntity.status(HttpStatus.OK).body(empresas);
-    } catch (NullPointerException e) {
-        // Captura especificamente NullPointerException
-        System.err.println("Erro de Null Pointer: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-    } catch (Exception e) {
-        // Captura qualquer outra exceção
-        System.err.println("Erro inesperado: " + e.getMessage());
-        e.printStackTrace(); // Imprime todo o stack trace no console
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    }
+    public ResponseEntity<List<Empresa>> getEmpresas() {
+        try {
+            List<Empresa> empresas = empresaService.getEmpresas();
+            return ResponseEntity.status(HttpStatus.OK).body(empresas);
+        } catch (NullPointerException e) {
+            // Captura especificamente NullPointerException
+            System.err.println("Erro de NullPointerException: " + e.getMessage());
+            e.printStackTrace(); // Imprime o stack trace completo no console
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            // Captura qualquer outra exceção
+            System.err.println("Erro inesperado: " + e.getMessage());
+            e.printStackTrace(); // Imprime o stack trace completo no console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
 }
+
 
 
     @GetMapping("/empresa/{id}")

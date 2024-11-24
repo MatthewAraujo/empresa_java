@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.empresa.projetoapi.database.Database;
+import com.empresa.projetoapi.database.DatabasePosgress;
 import com.empresa.projetoapi.model.Empresa;
 import com.empresa.projetoapi.model.Funcionario;
 
@@ -19,15 +19,13 @@ import com.empresa.projetoapi.model.Funcionario;
 public class EmpresaRepository {
 
     public List<Empresa> findAll() throws SQLException {
-        System.out.println("PAssei aqui tambem");
 
         List<Empresa> empresas = new ArrayList<>();
         String query = "SELECT * FROM empresas";
-        
-        
-        try (Connection connection = Database.getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(query)) {
+
+        try (Connection connection = DatabasePosgress.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query)) {
 
             while (resultSet.next()) {
                 int empresaId = resultSet.getInt("id");
@@ -45,15 +43,19 @@ public class EmpresaRepository {
 
                 empresas.add(empresa);
             }
+        } catch (SQLException e) {
+            System.err.println("Erro ao consultar empresas: " + e.getMessage());
+            e.printStackTrace(); // Imprime o stack trace completo no console
         }
         return empresas;
     }
+
 
     private List<Funcionario> findFuncionariosByEmpresaId(int empresaId) throws SQLException {
         List<Funcionario> funcionarios = new ArrayList<>();
         String query = "SELECT * FROM funcionarios WHERE empresa_id = ?";
         
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setInt(1, empresaId);
@@ -77,7 +79,7 @@ public class EmpresaRepository {
 
     public Optional<Empresa> findById(int id) throws SQLException {
         String query = "SELECT * FROM empresas WHERE id = ?";
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setInt(1, id);
@@ -104,7 +106,7 @@ public class EmpresaRepository {
 
     public void save(Empresa empresa) throws SQLException {
         String query = "INSERT INTO empresas (nome, telefone, endereco) VALUES (?, ?, ?)";
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setString(1, empresa.getNome());
@@ -116,7 +118,7 @@ public class EmpresaRepository {
 
     public void update(Empresa empresa) throws SQLException {
         String query = "UPDATE empresas SET nome = ?, telefone = ?, endereco = ? WHERE id = ?";
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setString(1, empresa.getNome());
@@ -129,7 +131,7 @@ public class EmpresaRepository {
 
     public void deleteById(int id) throws SQLException {
         String query = "DELETE FROM empresas WHERE id = ?";
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setInt(1, id);

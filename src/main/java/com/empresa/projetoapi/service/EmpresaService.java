@@ -25,15 +25,25 @@ public class EmpresaService {
     public List<Empresa> getEmpresas() {
         try {
             return empresaRepository.findAll();
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            // Captura SQLException e imprime o stack trace completo
             System.err.println("Erro inesperado ao buscar empresas: " + e.getMessage());
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             System.err.println("Stack trace completo: " + sw.toString());
             throw new RuntimeException("Erro ao buscar empresas", e); // Lança uma exceção de runtime com mais contexto
+        } catch (Exception e) {
+            // Captura qualquer outra exceção
+            System.err.println("Erro inesperado: " + e.getMessage());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            System.err.println("Stack trace completo: " + sw.toString());
+            throw new RuntimeException("Erro desconhecido", e);
         }
     }
+
 
 
     public Optional<Empresa> getEmpresaById(Integer id) throws SQLException {

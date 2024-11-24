@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.empresa.projetoapi.database.Database;
+import com.empresa.projetoapi.database.DatabasePosgress;
 import com.empresa.projetoapi.model.Funcionario;
 
 @Repository
@@ -21,7 +21,7 @@ public class FuncionarioRepository {
         List<Funcionario> funcionarios = new ArrayList<>();
         String query = "SELECT * FROM funcionarios";
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
 
@@ -43,7 +43,7 @@ public class FuncionarioRepository {
 
     public Optional<Funcionario> findById(int id) throws SQLException {
         String query = "SELECT * FROM funcionarios WHERE id = ?";
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setInt(1, id);
@@ -67,7 +67,7 @@ public class FuncionarioRepository {
 
     public void save(Funcionario funcionario) throws SQLException {
         String query = "INSERT INTO funcionarios (nome, sobrenome, idade, email, cargo, empresa_id) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setString(1, funcionario.getNome());
@@ -82,7 +82,7 @@ public class FuncionarioRepository {
 
     public void update(Funcionario funcionario) throws SQLException {
         String query = "UPDATE funcionarios SET nome = ?, sobrenome = ?, idade = ?, email = ?, cargo = ?, empresa_id = ? WHERE id = ?";
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setString(1, funcionario.getNome());
@@ -98,7 +98,7 @@ public class FuncionarioRepository {
 
     public void deleteById(int id) throws SQLException {
         String query = "DELETE FROM funcionarios WHERE id = ?";
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = DatabasePosgress.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setInt(1, id);
